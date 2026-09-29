@@ -573,7 +573,18 @@ def getCredits(richtext=False):
     text = _wordwrap(text)
     return( _block(text))
 
+def use_xwayland():
+    """
+    Qt5's native Wayland backend fails with the OpenGL canvas (wl_subsurface
+    "no parent" protocol error), so run through XWayland with GLX instead.
+    """
+    if sys.platform.startswith('linux') and 'QT_QPA_PLATFORM' not in os.environ and \
+       (os.environ.get('WAYLAND_DISPLAY') or os.environ.get('XDG_SESSION_TYPE') == 'wayland'):
+        os.environ['QT_QPA_PLATFORM'] = 'xcb'
+        os.environ.setdefault('PYOPENGL_PLATFORM', 'glx')
+
 def main():
+    use_xwayland()
     print(getCopyrightMessage(short=True) + "\n")
 
     try:
